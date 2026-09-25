@@ -1,0 +1,441 @@
+{
+  "charging_stations": [
+    "CHG_1",
+    "CHG_2"
+  ],
+  "edges": [
+    {
+      "from": "CORNER_TL",
+      "path_class": "boulevard",
+      "to": "RFID_M1",
+      "two_way": false,
+      "type": "main",
+      "weight": 50
+    },
+    {
+      "from": "RFID_M1",
+      "path_class": "boulevard",
+      "to": "GATE_S1",
+      "two_way": false,
+      "type": "main",
+      "weight": 50
+    },
+    {
+      "from": "GATE_S1",
+      "path_class": "boulevard",
+      "to": "RFID_M2",
+      "two_way": false,
+      "type": "main",
+      "weight": 50
+    },
+    {
+      "from": "RFID_M2",
+      "path_class": "boulevard",
+      "to": "CORNER_TR",
+      "two_way": false,
+      "type": "main",
+      "weight": 50
+    },
+    {
+      "from": "CORNER_BR",
+      "path_class": "boulevard",
+      "to": "RFID_M4",
+      "two_way": false,
+      "type": "main",
+      "weight": 50
+    },
+    {
+      "from": "RFID_M4",
+      "path_class": "boulevard",
+      "to": "GATE_S2",
+      "two_way": false,
+      "type": "main",
+      "weight": 50
+    },
+    {
+      "from": "GATE_S2",
+      "path_class": "boulevard",
+      "to": "RFID_M3",
+      "two_way": false,
+      "type": "main",
+      "weight": 50
+    },
+    {
+      "from": "RFID_M3",
+      "path_class": "boulevard",
+      "to": "CORNER_BL",
+      "two_way": false,
+      "type": "main",
+      "weight": 50
+    },
+    {
+      "from": "CORNER_TL",
+      "path_class": "outer",
+      "to": "GATE_K1",
+      "two_way": false,
+      "type": "main",
+      "weight": 70
+    },
+    {
+      "from": "GATE_K1",
+      "path_class": "outer",
+      "to": "CORNER_BL",
+      "two_way": false,
+      "type": "main",
+      "weight": 70
+    },
+    {
+      "from": "CORNER_TR",
+      "path_class": "outer",
+      "to": "GATE_K6",
+      "two_way": false,
+      "type": "main",
+      "weight": 70
+    },
+    {
+      "from": "GATE_K6",
+      "path_class": "outer",
+      "to": "CORNER_BR",
+      "two_way": false,
+      "type": "main",
+      "weight": 70
+    },
+    {
+      "from": "RFID_M1",
+      "path_class": "inner",
+      "to": "GATE_K2",
+      "two_way": false,
+      "type": "main",
+      "weight": 50
+    },
+    {
+      "from": "GATE_K2",
+      "path_class": "inner",
+      "to": "GATE_K3",
+      "two_way": false,
+      "type": "main",
+      "weight": 40
+    },
+    {
+      "from": "GATE_K3",
+      "path_class": "inner",
+      "to": "RFID_M3",
+      "two_way": false,
+      "type": "main",
+      "weight": 50
+    },
+    {
+      "from": "RFID_M4",
+      "path_class": "inner",
+      "to": "GATE_K5",
+      "two_way": false,
+      "type": "main",
+      "weight": 50
+    },
+    {
+      "from": "GATE_K5",
+      "path_class": "inner",
+      "to": "GATE_K4",
+      "two_way": false,
+      "type": "main",
+      "weight": 40
+    },
+    {
+      "from": "GATE_K4",
+      "path_class": "inner",
+      "to": "RFID_M2",
+      "two_way": false,
+      "type": "main",
+      "weight": 50
+    },
+    {
+      "from": "GATE_K1",
+      "path_class": "shortcut",
+      "to": "GATE_K6",
+      "two_way": false,
+      "type": "main",
+      "weight": 200
+    },
+    {
+      "from": "CHG_1",
+      "path_class": "",
+      "to": "GATE_S1",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "GATE_S1",
+      "path_class": "",
+      "to": "CHG_1",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "CHG_2",
+      "path_class": "",
+      "to": "GATE_S2",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "GATE_S2",
+      "path_class": "",
+      "to": "CHG_2",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "KHO_1",
+      "path_class": "",
+      "to": "GATE_K1",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "GATE_K1",
+      "path_class": "",
+      "to": "KHO_1",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "KHO_2",
+      "path_class": "",
+      "to": "GATE_K2",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "GATE_K2",
+      "path_class": "",
+      "to": "KHO_2",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "KHO_3",
+      "path_class": "",
+      "to": "GATE_K3",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "GATE_K3",
+      "path_class": "",
+      "to": "KHO_3",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "KHO_4",
+      "path_class": "",
+      "to": "GATE_K4",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "GATE_K4",
+      "path_class": "",
+      "to": "KHO_4",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "KHO_5",
+      "path_class": "",
+      "to": "GATE_K5",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "GATE_K5",
+      "path_class": "",
+      "to": "KHO_5",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "KHO_6",
+      "path_class": "",
+      "to": "GATE_K6",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    },
+    {
+      "from": "GATE_K6",
+      "path_class": "",
+      "to": "KHO_6",
+      "two_way": true,
+      "type": "branch",
+      "weight": 20
+    }
+  ],
+  "map_name": "Warehouse Layout v2 (ty le thuc te - cm)",
+  "mutex_zones": [
+    "RFID_M3",
+    "RFID_M1",
+    "RFID_M4",
+    "RFID_M2"
+  ],
+  "nodes": [
+    {
+      "id": "KHO_4",
+      "type": "station",
+      "x": 170.0,
+      "y": 50.0
+    },
+    {
+      "id": "KHO_2",
+      "type": "station",
+      "x": 30.0,
+      "y": 50.0
+    },
+    {
+      "id": "RFID_M2",
+      "type": "mutex",
+      "x": 150.0,
+      "y": 0.0
+    },
+    {
+      "id": "KHO_3",
+      "type": "station",
+      "x": 30.0,
+      "y": 90.0
+    },
+    {
+      "id": "KHO_5",
+      "type": "station",
+      "x": 170.0,
+      "y": 90.0
+    },
+    {
+      "id": "GATE_S2",
+      "type": "waypoint",
+      "x": 100.0,
+      "y": 140.0
+    },
+    {
+      "id": "RFID_M4",
+      "type": "mutex",
+      "x": 150.0,
+      "y": 140.0
+    },
+    {
+      "id": "GATE_K2",
+      "type": "waypoint",
+      "x": 50.0,
+      "y": 50.0
+    },
+    {
+      "id": "CHG_2",
+      "type": "charging",
+      "x": 100.0,
+      "y": 160.0
+    },
+    {
+      "id": "CHG_1",
+      "type": "charging",
+      "x": 100.0,
+      "y": -20.0
+    },
+    {
+      "id": "CORNER_BR",
+      "type": "waypoint",
+      "x": 200.0,
+      "y": 140.0
+    },
+    {
+      "id": "RFID_M3",
+      "type": "mutex",
+      "x": 50.0,
+      "y": 140.0
+    },
+    {
+      "id": "KHO_1",
+      "type": "station",
+      "x": -20.0,
+      "y": 70.0
+    },
+    {
+      "id": "CORNER_BL",
+      "type": "waypoint",
+      "x": 0.0,
+      "y": 140.0
+    },
+    {
+      "id": "GATE_K3",
+      "type": "waypoint",
+      "x": 50.0,
+      "y": 90.0
+    },
+    {
+      "id": "GATE_K4",
+      "type": "waypoint",
+      "x": 150.0,
+      "y": 50.0
+    },
+    {
+      "id": "RFID_M1",
+      "type": "mutex",
+      "x": 50.0,
+      "y": 0.0
+    },
+    {
+      "id": "CORNER_TL",
+      "type": "waypoint",
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "id": "KHO_6",
+      "type": "station",
+      "x": 220.0,
+      "y": 70.0
+    },
+    {
+      "id": "GATE_S1",
+      "type": "waypoint",
+      "x": 100.0,
+      "y": 0.0
+    },
+    {
+      "id": "GATE_K5",
+      "type": "waypoint",
+      "x": 150.0,
+      "y": 90.0
+    },
+    {
+      "id": "CORNER_TR",
+      "type": "waypoint",
+      "x": 200.0,
+      "y": 0.0
+    },
+    {
+      "id": "GATE_K6",
+      "type": "waypoint",
+      "x": 200.0,
+      "y": 70.0
+    },
+    {
+      "id": "GATE_K1",
+      "type": "waypoint",
+      "x": 0.0,
+      "y": 70.0
+    }
+  ]
+}

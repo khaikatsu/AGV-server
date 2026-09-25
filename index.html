@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Hệ thống Giám sát AGV</title>
+  <style>
+    :root {
+      --bg-main: #0B0F19;
+      --bg-panel: #151A28;
+      --bg-card: #1E2536;
+      --text-main: #E2E8F0;
+      --text-muted: #94A3B8;
+      --border-color: #2D3748;
+      --accent-blue: #3B82F6;
+      --accent-blue-hover: #2563EB;
+      --status-ok: #10B981;
+      --status-warn: #F59E0B;
+      --status-error: #EF4444;
+      --status-idle: #10B981;
+      --status-working: #3B82F6;
+      --status-offline: #64748B;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+    }
+
+    #topbar {
+      height: 56px;
+      padding: 0 20px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+      margin-right: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-title::before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      background: var(--accent-blue);
+      border-radius: 50%;
+    }
+
+    #topbar input {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      width: 240px;
+    }
+
+    #topbar input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    #topbar button,
+    .btn {
+      background: var(--accent-blue);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    #topbar button:hover,
+    .btn:hover {
+      background: var(--accent-blue-hover);
+    }
+
+    .status-indicator {
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-indicator::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .status-indicator.ok {
+      color: var(--status-ok);
+    }
+
+    .status-indicator.ok::before {
+      background: var(--status-ok);
+      box-shadow: 0 0 8px var(--status-ok);
+    }
+
+    .status-indicator.bad {
+      color: var(--status-error);
+    }
+
+    .status-indicator.bad::before {
+      background: var(--status-error);
+    }
+
+    #main-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    #left-panel {
+      width: 320px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    #center-panel {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: var(--bg-main);
+      min-width: 0;
+    }
+
+    #right-panel {
+      width: 380px;
+      background: var(--bg-panel);
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    #selectionBar {
+      padding: 10px 20px;
+      background: rgba(21, 26, 40, 0.95);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 5;
+      backdrop-filter: blur(4px);
+    }
+
+    #selectionBar.idle {
+      color: var(--text-muted);
+    }
+
+    #selectionBar.picking {
+      color: var(--status-warn);
+      font-weight: 600;
+    }
+
+    #selectionBar button {
+      background: #334155;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    svg {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, #111827 0%, #0B0F19 100%);
+    }
+
+    .node-label {
+      font-size: 14px;
+      fill: var(--text-muted);
+      font-family: monospace;
+    }
+
+    .edge {
+      stroke: #334155;
+      stroke-width: 3;
+      marker-end: url(#arrow);
+    }
+
+    .agv {
+      fill: var(--status-warn);
+      stroke: #000;
+      stroke-width: 2px;
+      rx: 4px;
+      ry: 4px;
+    }
+
+    .agv-label {
+      font-size: 14px;
+      fill: var(--status-warn);
+      font-weight: bold;
+    }
+
+    .node-clickable {
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .node-clickable:hover {
+      stroke: #fff;
+      stroke-width: 2px;
+    }
+
+    .node-selected {
+      stroke: var(--status-warn);
+      stroke-width: 3px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.6;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin: 16px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .card.compact {
+      margin: 8px 16px;
+      padding: 12px 16px;
+    }
+
+    .card-header {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      text-align: left;
+      padding: 8px 10px;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 2px solid var(--border-color);
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-group input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px 12px;
+      background: #0B0F19;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .row-btn {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .row-btn button {
+      flex: 1;
+    }
+
+    .btn-danger {
+      background: #DC2626;
+    }
+
+    .btn-danger:hover {
+      background: #B91C1C;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge.priority {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--status-warn);
+      border: 1px solid var(--status-warn);
+    }
+
+    .state-IDLE {
+      color: var(--status-idle);
+      font-weight: 600;
+    }
+
+    .state-WORKING {
+      color: var(--status-working);
+      font-weight: 600;
+    }
+
+    .state-CHARGING,
+    .state-CHARGING_EN_ROUTE {
+      color: var(--status-warn);
+      font-weight: 600;
+    }
+
+    .state-BLOCKED,
+    .state-ERROR {
+      color: var(--status-error);
+      font-weight: 600;
+    }
+
+    .state-OFFLINE {
+      color: var(--status-offline);
+    }
+
+    .log-list {
+      max-height: 180px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+
+    .log-item {
+      padding: 6px 0;
+      border-bottom: 1px dashed var(--border-color);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .log-item:last-child {
+      border-bottom: none;
+    }
+
+    .log-time {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-panel);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #64748B;
+    }
+
+    #kpiAlertBar {
+      background: rgba(239, 68, 68, 0.1);
+      color: #FCA5A5;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+      display: none;
+    }
+
+    /* MOI: khu vuc thong bao "toast" goc tren-phai, hien khi server thuc hien xong 1 hanh dong */
+    #toastContainer {
+      position: fixed;
+      top: 66px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 360px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-blue);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+      animation: toastIn 0.2s ease-out;
+      pointer-events: auto;
+    }
+
+    .toast.ok {
+      border-left-color: var(--status-ok);
+    }
+
+    .toast.error {
+      border-left-color: var(--status-error);
+    }
+
+    .toast.warn {
+      border-left-color: var(--status-warn);
+    }
+
+    .toast-time {
+      color: var(--text-muted);
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .btn-mini {
+      padding: 3px 8px;
+      font-size: 11px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="topbar">
+    <div class="brand-title">AGV CONTROL CENTER</div>
+    <div style="display:flex; gap: 8px; margin-left: auto; align-items:center;">
+      <input id="wsUrl" value="ws://localhost:3000/ws" placeholder="Server URL">
+      <button class="btn" onclick="connect()">KẾT NỐI</button>
+      <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 8px;"></div>
+      <span id="status" class="status-indicator bad">Backend: Disconnected</span>
+      <span id="agvLinkStatus" class="status-indicator bad" style="margin-left:8px">C++ Core: ?</span>
+    </div>
+  </div>
+  <div id="kpiAlertBar"></div>
+  <div id="toastContainer"></div>
+  <div id="main-container">
+    <div id="left-panel">
+      <div class="card compact">
+        <div class="card-header">Danh sách Fleet AGV</div>
+        <table id="fleetTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Node</th>
+              <th>Pin</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="card compact">
+        <div class="card-header">Hàng đợi Task</div>
+        <table id="taskTable">
+          <thead>
+            <tr>
+              <th>Đích đến</th>
+              <th>Ưu tiên</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="card compact">
+        <div class="card-header">Trạng thái Mutex Zone</div>
+        <table id="mutexTable">
+          <thead>
+            <tr>
+              <th>Zone ID</th>
+              <th>Đang giữ</th>
+              <th>Chờ</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="card compact">
+        <div class="card-header">Nhật ký hệ thống</div>
+        <div id="systemLogBox" class="log-list">
+          <div style="color:var(--text-muted); padding:6px 0">Đang chờ sự
+            kiện...</div>
+        </div>
+      </div>
+    </div>
+    <div id="center-panel">
+      <div id="selectionBar" class="idle"><span id="selectionText">ℹ Bấm chọn AGV hoặc Node trống trên sa bàn để ra lệnh
+          điều hướng.</span><button id="cancelSelectBtn" onclick="cancelSelection()" style="display:none">Huỷ chọn
+          (Esc)</button></div>
+      <svg id="mapSvg" viewBox="20 20 1020 720" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill="#475569" />
+          </marker>
+        </defs>
+        <g id="edgesG"></g>
+        <g id="nodesG"></g>
+        <g id="agvsG"></g>
+      </svg>
+    </div>
+    <div id="right-panel">
+      <div class="card compact">
+        <div class="card-header">Điều khiển Hệ thống</div>
+        <div style="margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+          <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">ĐỘI XE (AGV)</div>
+          <div style="font-size: 11px; color: var(--text-muted); line-height:1.5;">
+            AGV chỉ xuất hiện tự động khi ESP32 của xe.
+          </div>
+        </div>
+        <div style="margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+          <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">GIAO TASK THỦ CÔNG</div>
+          <div style="display: flex; gap: 8px;">
+            <input id="task_target" class="form-group" style="flex:2; padding:8px 12px;"
+              placeholder="Node đích (VD: KHO_3)">
+            <input id="task_priority" type="number" class="form-group" style="flex:1; padding:8px;" value="0"
+              placeholder="Ưu tiên">
+          </div>
+          <button class="btn" style="width: 100%; margin-top: 4px;" onclick="addTask()">Đẩy vào hàng đợi</button>
+        </div>
+        <div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">QUẢN LÝ VẬT CẢN (MAP)</div>
+          <div class="form-group"><input id="obstacle_node" placeholder="Node bị chặn (VD: GATE_K2)"></div>
+          <div class="row-btn" style="margin-top:0">
+            <button class="btn btn-danger" onclick="setObstacle(true)">Khóa Node</button>
+            <button class="btn btn-outline" onclick="setObstacle(false)">Mở Node</button>
+          </div>
+        </div>
+      </div>
+      <div class="card compact">
+        <div class="card-header"><span>Bản đồ & Snapshots</span><button class="btn-outline"
+            style="padding: 2px 6px; font-size:10px; border-radius:4px" onclick="loadMapList()">↻ Tải lại</button></div>
+        <div style="font-size: 11px; color: var(--text-muted); line-height:1.5; margin-bottom:8px">
+          <b>Lưu nhanh</b>: ghi đè file làm việc của C++ Core trên đĩa
+          (<code>data/map_layout.json</code>) — Core tự nạp lại đúng file này mỗi khi khởi động
+          lại.<br><b>Lưu mới</b>: lưu 1 bản có tên vào database (SQLite).
+        </div>
+        <button class="btn-outline" style="width:100%; margin-bottom:8px" onclick="saveMap()">Lưu nhanh (ghi đè file
+          C++ Core)</button>
+        <div style="display: flex; gap: 8px;"><input id="map_save_name" class="form-group" style="flex:2; padding:8px;"
+            placeholder="Tên bản đồ (VD: Ca sáng)"><button class="btn" style="flex:1" onclick="saveNamedMap()">Lưu
+            mới (database)</button></div>
+        <div id="mapListBox" class="log-list" style="margin-top: 8px;"></div>
+      </div>
+      <div class="card compact" id="kpiPanel">
+        <div class="card-header"><span>Báo cáo KPI Hiệu suất</span><button class="btn"
+            style="padding: 4px 8px; font-size:10px" onclick="generateKpi()">Tạo báo cáo</button></div>
+        <div id="kpiBox"
+          style="font-size:12px; margin-bottom: 12px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+          <i>Đang tải...</i>
+        </div>
+        <div class="card-header" style="margin-bottom:6px">Lịch sử KPI</div>
+        <div id="kpiHistoryBox" class="log-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="mapPreviewOverlay"
+    style="display:none; position:fixed; inset:0; background:rgba(11, 15, 25, 0.85); z-index:50; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
+    <div
+      style="background:var(--bg-panel); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:85%; max-width:1000px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 id="mapPreviewTitle" style="margin:0; font-size:18px">Xem bản đồ</h2><button class="btn-outline"
+          onclick="closeMapPreview()">✕ Đóng</button>
+      </div>
+      <svg id="mapPreviewSvg" viewBox="20 20 1020 720" width="100%" height="500"
+        style="background:#0B0F19; border-radius:8px; border: 1px solid #1E2536;">
+        <g id="previewEdgesG"></g>
+        <g id="previewNodesG"></g>
+      </svg>
+      <div style="margin-top:20px; display:flex; gap:12px; justify-content: flex-end;"><button class="btn btn-danger"
+          onclick="deletePreviewedMap()">Xoá bản đồ</button><button class="btn" onclick="applyPreviewedMap()">Nạp vào
+          Server Đang Chạy</button></div>
+    </div>
+  </div>
+
+  <script>
+    let ws = null;
+    let lastState = null;
+    // Khi mở dashboard từ Node.js, dùng đúng host hiện tại (hỗ trợ cả máy khác
+    // trong LAN). Khi mở trực tiếp file HTML, vẫn mặc định backend local.
+    const API_BASE = /^https?:$/.test(window.location.protocol)
+      ? window.location.origin
+      : 'http://localhost:3000';
+
+    function connect() {
+      const wsUrl = (API_BASE || window.location.origin).replace(/^http/, 'ws') + '/ws';
+      document.getElementById('wsUrl').value = wsUrl;
+      ws = new WebSocket(wsUrl);
+      ws.onopen = () => setStatus(true);
+      ws.onclose = () => setStatus(false);
+      ws.onerror = () => setStatus(false);
+      ws.onmessage = (ev) => {
+        lastState = JSON.parse(ev.data);
+        render(lastState);
+        setAgvLinkStatus(lastState.agv_connected);
+        if (lastState.kpi_alert) showKpiAlert(lastState.kpi_alert);
+        processServerLogs(lastState.logs);
+      };
+    }
+
+    function setStatus(ok) {
+      const el = document.getElementById('status');
+      el.textContent = ok ? 'Backend: Đang kết nối' : 'Backend: MẤT KẾT NỐI';
+      el.className = 'status-indicator ' + (ok ? 'ok' : 'bad');
+      if (!ok) setAgvLinkStatus(false);
+    }
+
+    function setAgvLinkStatus(ok) {
+      const el = document.getElementById('agvLinkStatus');
+      el.textContent = ok ? 'C++ Core: Đang kết nối' : 'C++ Core: MẤT KẾT NỐI';
+      el.className = 'status-indicator ' + (ok ? 'ok' : 'bad');
+    }
+
+    // ===== THONG BAO (TOAST) + NHAT KY HE THONG =====
+    // C++ Core phat kem "logs" (moi su kien server thuc hien: them/xoa xe, giao/huy task,
+    // khoa node, luu ban do, loi xe, mat ket noi...) trong moi lan broadcast trang thai.
+    // seq tang dan don dieu -> chi hien thong bao cho nhung muc CHUA TUNG thay (seq > lastLogSeq),
+    // tranh hien lap lai cung 1 thong bao moi ~700ms khi khong co gi moi xay ra.
+    let lastLogSeq = -1;
+    const recentLogs = [];
+
+    function toast(msg, type = 'ok') {
+      const box = document.getElementById('toastContainer');
+      const el = document.createElement('div');
+      el.className = 'toast ' + type;
+      const t = new Date().toLocaleTimeString('vi-VN');
+      el.innerHTML = `<div>${msg}</div><div class="toast-time">${t}</div>`;
+      box.appendChild(el);
+      setTimeout(() => el.remove(), 6000);
+    }
+
+    function classifyLog(msg) {
+      if (msg.startsWith('[LOI]') || msg.includes('BAO LOI') || msg.includes('KHONG ACK')) return 'error';
+      if (msg.includes('MAT KET NOI') || msg.includes('huy')) return 'warn';
+      return 'ok';
+    }
+
+    function processServerLogs(logs) {
+      if (!Array.isArray(logs) || logs.length === 0) return;
+      const fresh = logs.filter(l => l && typeof l.seq === 'number' && l.seq > lastLogSeq);
+      if (fresh.length === 0) return;
+      fresh.sort((a, b) => a.seq - b.seq);
+      for (const entry of fresh) {
+        toast(entry.msg, classifyLog(entry.msg));
+        recentLogs.unshift(entry);
+      }
+      lastLogSeq = fresh[fresh.length - 1].seq;
+      if (recentLogs.length > 50) recentLogs.length = 50;
+      renderSystemLog();
+    }
+
+    function renderSystemLog() {
+      const box = document.getElementById('systemLogBox');
+      if (recentLogs.length === 0) { box.innerHTML = '<div style="color:var(--text-muted); padding:6px 0">Đang chờ sự kiện...</div>'; return; }
+      box.innerHTML = recentLogs.map(l =>
+        `<div class="log-item"><div>${l.msg}</div><div class="log-time">${l.time || ''}</div></div>`
+      ).join('');
+    }
+
+    function showKpiAlert(report) {
+      const bar = document.getElementById('kpiAlertBar');
+      bar.style.display = 'block';
+      bar.textContent = `⚠ Mất kết nối C++ Core lúc ${report.created_at || ''} — Đã tự động tạo báo cáo KPI (Hoàn thành ${report.completed_tasks}/${report.total_tasks} task).`;
+      renderKpi(report);
+      loadKpiHistory();
+    }
+
+    // ĐÃ BỔ SUNG TRY/CATCH ĐỂ BÁO LỖI NẾU BACKEND HOẶC C++ BỊ TẮT
+    async function api(method, path, body) {
+      try {
+        const res = await fetch(API_BASE + path, {
+          method,
+          headers: body ? { 'Content-Type': 'application/json' } : undefined,
+          body: body ? JSON.stringify(body) : undefined,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) alert('Lệnh bị từ chối: ' + (data.error || res.status));
+        return { ...data, ok: res.ok };
+      } catch (error) {
+        alert('Lỗi: Không thể kết nối tới Backend Node.js! Vui lòng kiểm tra Terminal.');
+        console.error(error);
+        return null;
+      }
+    }
+
+    function removeAGV(id) { api('DELETE', '/api/agvs/' + encodeURIComponent(id)); }
+    function addTask() {
+      api('POST', '/api/tasks', { target: document.getElementById('task_target').value, priority: parseInt(document.getElementById('task_priority').value || '0') });
+    }
+    // MOI: huy task theo dich den (nut "Huy" tren hang doi task) -- goi API roi cho toast tu
+    // "logs" xac nhan ket qua (server la nguon thong bao duy nhat, xem processServerLogs).
+    function cancelTask(target) {
+      if (!confirm(`Huỷ task tới "${target}"? (task đang chờ sẽ bị xoá khỏi hàng đợi, xe đang chạy tới đó sẽ dừng lại)`)) return;
+      api('POST', '/api/tasks/cancel', { target });
+    }
+    // MOI: xoa trang thai LOI cua 1 xe sau khi da xu ly ngoai doi (nut "Xoa loi" tren fleet table)
+    function clearAgvError(id) {
+      api('POST', `/api/agvs/${encodeURIComponent(id)}/clear-error`);
+    }
+
+    async function setObstacle(blocked) {
+      const nodeInput = document.getElementById('obstacle_node');
+      if (!nodeInput.value) {
+        alert('Vui lòng nhập tên Node cần khóa (VD: KHO_3)');
+        return;
+      }
+      const res = await api('POST', '/api/map/obstacle', { node: nodeInput.value, blocked });
+      if (res && res.ok && !blocked) nodeInput.value = ''; // Tự làm trống input khi mở khóa thành công
+    }
+
+    let previewMapId = null;
+    async function saveMap() {
+      const res = await api('POST', '/api/map/save', {});
+      if (res && res.ok) {
+        toast(`Đã ghi đè file C++ Core tại: ${res.path || 'data/map_layout.json'} (đồng thời lưu 1 bản snapshot database tên "${res.name || ''}")`, 'ok');
+        loadMapList();
+      }
+    }
+
+    async function loadMapList() {
+      const rows = await api('GET', '/api/map/snapshots');
+      if (!rows) return;
+      const box = document.getElementById('mapListBox');
+      box.innerHTML = (Array.isArray(rows) ? rows : []).map(r =>
+        `<div class="log-item" style="align-items:center">
+           <div><div style="font-weight:600; color:#fff">${r.name || ('Map #' + r.id)}</div><div class="log-time">${r.saved_at}</div></div>
+           <button class="btn-outline" style="padding:4px 10px; font-size:11px; border-radius:4px" onclick="viewSavedMap(${r.id})">Xem</button>
+         </div>`
+      ).join('') || '<div style="color:var(--text-muted); padding:10px 0">Chưa có bản đồ nào</div>';
+    }
+
+    async function saveNamedMap() {
+      const nameInput = document.getElementById('map_save_name');
+      const r = await api('POST', '/api/map/snapshots', { name: nameInput.value.trim() });
+      if (r && r.ok) {
+        toast(`Đã lưu bản đồ mới vào database với tên "${r.name || nameInput.value.trim()}" (chưa đụng tới file C++ Core)`, 'ok');
+        nameInput.value = '';
+        loadMapList();
+      }
+    }
+
+    async function viewSavedMap(id) {
+      const snap = await api('GET', '/api/map/snapshots/' + id);
+      if (!snap || !snap.map) return;
+      previewMapId = id;
+      document.getElementById('mapPreviewTitle').textContent = snap.name || ('Map #' + id);
+      renderPreviewMap(snap.map);
+      document.getElementById('mapPreviewOverlay').style.display = 'flex';
+    }
+
+    function closeMapPreview() { document.getElementById('mapPreviewOverlay').style.display = 'none'; previewMapId = null; }
+
+    async function applyPreviewedMap() {
+      if (!previewMapId) return;
+      const r = await api('POST', `/api/map/snapshots/${previewMapId}/apply`, {});
+      if (r && r.ok) { alert('Thành công: Đã nạp bản đồ vào C++ Server!'); closeMapPreview(); }
+    }
+
+    async function deletePreviewedMap() {
+      if (!previewMapId || !confirm('Xoá bản đồ này vĩnh viễn?')) return;
+      await api('DELETE', '/api/map/snapshots/' + previewMapId);
+      closeMapPreview(); loadMapList();
+    }
+
+    function renderPreviewMap(map) {
+      const nodesG = document.getElementById('previewNodesG');
+      const edgesG = document.getElementById('previewEdgesG');
+      nodesG.innerHTML = ''; edgesG.innerHTML = '';
+      const { scale, ox, oy } = computeMapTransform(map.nodes || []);
+      const toPx = (n) => ({ x: n.x * scale + ox, y: n.y * scale + oy });
+      const pos = {}; (map.nodes || []).forEach(n => pos[n.id] = toPx(n));
+
+      (map.edges || []).forEach(e => {
+        const a = pos[e.from], b = pos[e.to]; if (!a || !b) return;
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', a.x); line.setAttribute('y1', a.y); line.setAttribute('x2', b.x); line.setAttribute('y2', b.y); line.setAttribute('class', 'edge');
+        edgesG.appendChild(line);
+      });
+
+      (map.nodes || []).forEach(n => {
+        const p = pos[n.id]; const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', p.x); c.setAttribute('cy', p.y); c.setAttribute('r', 16);
+        let fill = '#1E293B', stroke = '#475569';
+        if (n.type === 'mutex') { fill = 'rgba(249, 115, 22, 0.2)'; stroke = '#F97316'; }
+        if (n.type === 'charging') { fill = 'rgba(34, 197, 94, 0.2)'; stroke = '#22C55E'; }
+        if (n.type === 'station') { fill = 'rgba(56, 189, 248, 0.2)'; stroke = '#38BDF8'; }
+        c.setAttribute('fill', fill); c.setAttribute('stroke', stroke); c.setAttribute('stroke-width', '2');
+        nodesG.appendChild(c);
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', p.x + 22); t.setAttribute('y', p.y + 5); t.setAttribute('class', 'node-label'); t.textContent = n.id;
+        nodesG.appendChild(t);
+      });
+    }
+
+    function renderKpi(report) {
+      const box = document.getElementById('kpiBox');
+      if (!report || report.total_tasks === undefined) { box.innerHTML = '<span style="color:var(--text-muted)">Chưa có dữ liệu vận hành</span>'; return; }
+      // period_start/period_end: dinh dang SQLite "YYYY-MM-DD HH:MM:SS" (xem db.js) -> lay phan gio bang split(' ')
+      const fmtTime = (s) => (s && s.split(' ')[1]) || '';
+      box.innerHTML = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px">
+          <span style="color:var(--text-muted)">Trigger: <span class="badge ${report.reason === 'disconnect' ? 'priority' : ''}">${report.reason === 'disconnect' ? 'Auto-Backup' : 'Thủ công'}</span></span>
+          <span style="color:var(--text-muted)">${fmtTime(report.period_start)} ➔ ${fmtTime(report.period_end)}</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom:8px">
+          <div style="background:#0B0F19; padding:8px; border-radius:4px; text-align:center"><div style="font-size:18px; font-weight:bold; color:var(--status-ok)">${report.completed_tasks} <span style="font-size:12px; color:var(--text-muted)">/ ${report.total_tasks}</span></div><div style="font-size:10px; color:var(--text-muted); text-transform:uppercase">Task Hoàn thành</div></div>
+          <div style="background:#0B0F19; padding:8px; border-radius:4px; text-align:center"><div style="font-size:18px; font-weight:bold; color:var(--accent-blue)">${report.avg_completion_seconds != null ? report.avg_completion_seconds + 's' : '-'}</div><div style="font-size:10px; color:var(--text-muted); text-transform:uppercase">Tốc độ TB</div></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted)"><span>Đang đợi: <b style="color:#fff">${report.pending_tasks}</b></span><span>Sự cố xe: <b style="color:var(--status-error)">${report.agv_error_events}</b></span><span>Vật cản: <b style="color:var(--status-warn)">${report.obstacle_events}</b></span></div>`;
+    }
+
+    async function loadLatestKpi() { const r = await api('GET', '/api/kpi/latest'); renderKpi(r); }
+    async function generateKpi() { const r = await api('POST', '/api/kpi/generate', {}); if (r && r.report) renderKpi(r.report); loadKpiHistory(); }
+
+    async function loadKpiHistory() {
+      const rows = await api('GET', '/api/kpi/history?limit=20');
+      if (!rows) return;
+      const box = document.getElementById('kpiHistoryBox');
+      box.innerHTML = (Array.isArray(rows) ? rows : []).map(r =>
+        `<div class="log-item"><div>#${r.id} <span class="badge" style="background:rgba(255,255,255,0.1); margin-left:4px">${r.reason === 'disconnect' ? 'Auto' : 'Thủ công'}</span></div><div>Thành công: <b>${r.completed_tasks}/${r.total_tasks}</b></div><div class="log-time">${r.created_at.substring(5, 16)}</div></div>`
+      ).join('') || '<div style="color:var(--text-muted); padding:10px 0">Chưa có bản ghi</div>';
+    }
+
+    let selectedAgvId = null;
+    function setSelectionText(text, picking) {
+      document.getElementById('selectionText').textContent = text; document.getElementById('selectionBar').className = picking ? 'picking' : 'idle'; document.getElementById('cancelSelectBtn').style.display = picking ? 'inline-block' : 'none';
+    }
+    function selectAgv(agvId, fromNode) {
+      selectedAgvId = agvId; setSelectionText(`[ĐANG CHỌN XE ${agvId}] Bấm vào Node đích trên sa bàn để ra lệnh di chuyển...`, true);
+      if (lastState) renderMap(lastState.map, lastState.fleet.agvs);
+    }
+    function cancelSelection() {
+      selectedAgvId = null; setSelectionText('ℹ Bấm chọn AGV hoặc Node trống trên sa bàn để ra lệnh điều hướng.', false);
+      if (lastState) renderMap(lastState.map, lastState.fleet.agvs);
+    }
+
+    async function onNodeClick(nodeId) {
+      if (!selectedAgvId) {
+        const agv = (lastState && lastState.fleet.agvs || []).find(a => a.node === nodeId && a.state === 'IDLE');
+        if (agv) selectAgv(agv.id, nodeId);
+        else setSelectionText(`⚠ Node [${nodeId}] không có xe rảnh. Vui lòng chọn xe màu vàng trước.`, false);
+        return;
+      }
+      const agvId = selectedAgvId; selectedAgvId = null;
+      setSelectionText(`Thực thi: Gửi lệnh điều hướng cho AGV_${agvId} tới Node [${nodeId}]...`, false);
+      const res = await api('POST', `/api/agvs/${encodeURIComponent(agvId)}/goto`, { target: nodeId });
+      if (res && res.ok) setSelectionText(`Thành công: Đã nạp tọa độ [${nodeId}] cho AGV_${agvId}.`, false);
+      if (lastState) renderMap(lastState.map, lastState.fleet.agvs);
+    }
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cancelSelection(); });
+
+    function render(state) { renderMap(state.map, state.fleet.agvs); renderFleet(state.fleet.agvs); renderTasks(state.fleet.pending_tasks); renderMutex(state.mutex); }
+
+    const VB = { x0: 20, y0: 20, w: 1020, h: 720 };
+    const MAP_PADDING = 60;
+    function computeMapTransform(nodes) {
+      if (!nodes || !nodes.length) return { scale: 1, ox: VB.x0, oy: VB.y0 };
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      nodes.forEach(n => { if (n.x < minX) minX = n.x; if (n.x > maxX) maxX = n.x; if (n.y < minY) minY = n.y; if (n.y > maxY) maxY = n.y; });
+      const mapW = (maxX - minX) || 1, mapH = (maxY - minY) || 1;
+      const drawW = VB.w - 2 * MAP_PADDING, drawH = VB.h - 2 * MAP_PADDING;
+      const scale = Math.min(drawW / mapW, drawH / mapH);
+      const ox = VB.x0 + MAP_PADDING + (drawW - mapW * scale) / 2 - minX * scale;
+      const oy = VB.y0 + MAP_PADDING + (drawH - mapH * scale) / 2 - minY * scale;
+      return { scale, ox, oy };
+    }
+
+    function renderMap(map, agvs) {
+      const nodesG = document.getElementById('nodesG'), edgesG = document.getElementById('edgesG'), agvsG = document.getElementById('agvsG');
+      nodesG.innerHTML = ''; edgesG.innerHTML = ''; agvsG.innerHTML = '';
+      const { scale, ox, oy } = computeMapTransform(map.nodes || []);
+      const toPx = (n) => ({ x: n.x * scale + ox, y: n.y * scale + oy });
+      const pos = {}; (map.nodes || []).forEach(n => pos[n.id] = toPx(n));
+
+      (map.edges || []).forEach(e => {
+        const a = pos[e.from], b = pos[e.to]; if (!a || !b) return;
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', a.x); line.setAttribute('y1', a.y); line.setAttribute('x2', b.x); line.setAttribute('y2', b.y); line.setAttribute('class', 'edge');
+        edgesG.appendChild(line);
+      });
+
+      const obstacles = new Set(map.obstacles || []);
+      const selectedAgvNode = selectedAgvId ? (agvs || []).find(a => a.id === selectedAgvId)?.node : null;
+
+      (map.nodes || []).forEach(n => {
+        const p = pos[n.id];
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', p.x); c.setAttribute('cy', p.y); c.setAttribute('r', 16);
+        let fill = '#1E293B', stroke = '#475569';
+        if (n.type === 'mutex') { fill = 'rgba(249, 115, 22, 0.2)'; stroke = '#F97316'; }
+        if (n.type === 'charging') { fill = 'rgba(34, 197, 94, 0.2)'; stroke = '#22C55E'; }
+        if (n.type === 'station') { fill = 'rgba(56, 189, 248, 0.2)'; stroke = '#38BDF8'; }
+        if (obstacles.has(n.id)) { fill = 'rgba(239, 68, 68, 0.6)'; stroke = '#EF4444'; }
+
+        c.setAttribute('fill', fill); c.setAttribute('stroke', stroke); c.setAttribute('stroke-width', '2');
+        c.setAttribute('class', 'node-clickable' + (n.id === selectedAgvNode ? ' node-selected' : ''));
+        c.addEventListener('click', () => onNodeClick(n.id));
+        nodesG.appendChild(c);
+
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', p.x + 22); t.setAttribute('y', p.y + 5); t.setAttribute('class', 'node-label'); t.textContent = n.id;
+        nodesG.appendChild(t);
+      });
+
+      (agvs || []).forEach(a => {
+        const p = pos[a.node]; if (!p) return;
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        c.setAttribute('x', p.x - 12); c.setAttribute('y', p.y - 12); c.setAttribute('width', 24); c.setAttribute('height', 24);
+        c.setAttribute('class', 'agv agv-clickable' + (a.id === selectedAgvId ? ' node-selected' : ''));
+        if (a.state === 'ERROR' || a.state === 'BLOCKED') c.style.fill = '#EF4444';
+        else if (a.state === 'CHARGING' || a.state === 'CHARGING_EN_ROUTE') c.style.fill = '#10B981';
+        c.addEventListener('click', (ev) => { ev.stopPropagation(); onNodeClick(a.node); });
+        agvsG.appendChild(c);
+
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', p.x - 12); t.setAttribute('y', p.y - 18); t.setAttribute('class', 'agv-label'); t.textContent = 'AGV_' + a.id;
+        agvsG.appendChild(t);
+      });
+    }
+
+    function renderFleet(agvs) {
+      const tbody = document.querySelector('#fleetTable tbody'); tbody.innerHTML = '';
+      if (!agvs || agvs.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted)">Không có xe hoạt động</td></tr>'; return; }
+      agvs.forEach(a => {
+        const tr = document.createElement('tr');
+        const clearBtn = a.state === 'ERROR'
+          ? `<button class="btn-mini" style="background:var(--status-warn); color:#000; margin-right:4px" onclick="clearAgvError('${a.id}')" title="Xoá lỗi, cho xe hoạt động lại">Xoá lỗi</button>`
+          : '';
+        tr.innerHTML = `<td><b>${a.id}</b>${a.priority ? '<br><span class="badge priority">Ưu tiên</span>' : ''}</td><td style="font-family:monospace">${a.node}</td>
+      <td><div style="width:40px; height:6px; background:#334155; border-radius:3px; margin-bottom:4px; overflow:hidden"><div style="width:${a.battery}%; height:100%; background:${a.battery > 20 ? '#10B981' : '#EF4444'}"></div></div><span style="font-size:11px">${a.battery}%</span></td>
+      <td class="state-${a.state}">${a.state}</td><td style="white-space:nowrap">${clearBtn}<button class="btn-danger" style="padding:4px 8px; border:none; border-radius:4px; color:white; cursor:pointer" onclick="removeAGV('${a.id}')">✕</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderTasks(tasks) {
+      const tbody = document.querySelector('#taskTable tbody'); tbody.innerHTML = '';
+      if (!tasks || tasks.length === 0) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted)">Hàng đợi trống</td></tr>'; return; }
+      tasks.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td style="font-family:monospace; color:var(--accent-blue); font-weight:600">${t.target}</td><td>${t.priority > 0 ? '<span style="color:var(--status-warn)">Cao</span>' : 'Thường'}</td><td><button class="btn-mini btn-danger" onclick="cancelTask('${t.target}')" title="Huỷ task này">Huỷ</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderMutex(mutex) {
+      const tbody = document.querySelector('#mutexTable tbody'); tbody.innerHTML = ''; const zones = Object.keys(mutex || {});
+      if (zones.length === 0) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted)">Không có Zone</td></tr>'; return; }
+      zones.forEach(zone => { const z = mutex[zone]; const tr = document.createElement('tr'); tr.innerHTML = `<td style="font-family:monospace">${zone}</td><td style="color:${z.owner ? 'var(--status-error)' : 'var(--text-muted)'}"><b>${z.owner || 'Trống'}</b></td><td style="color:var(--status-warn)">${(z.waiting || []).join(', ') || '-'}</td>`; tbody.appendChild(tr); });
+    }
+
+    connect();
+    loadMapList();
+    loadLatestKpi();
+  </script>
+</body>
+
+</html>
