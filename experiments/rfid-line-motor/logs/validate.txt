@@ -1,0 +1,5 @@
+WORKSPACE PASS: 35 Markdown files, 3 skills, 14 requirements, 26 test cases
+Local file targets checked; URL availability and heading anchors are not checked.
+This does not run firmware unit tests or hardware tests.
+FIRMWARE GUARDS PASS: 13 modules, local includes, pin-call guards, boundaries, thin main
+Static pattern guards are not an electrical or hardware timing test.

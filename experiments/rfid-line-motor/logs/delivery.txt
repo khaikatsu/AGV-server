@@ -1,0 +1,1 @@
+FIRMWARE DELIVERY PASS: ordered source and hashes match

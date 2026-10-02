@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../../rfid-diagnostic"
+		},
+		{
+			"name": "servo-sonic",
+			"path": ".."
+		}
+	],
+	"settings": {}
+}

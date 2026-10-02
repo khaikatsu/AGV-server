@@ -1,0 +1,56 @@
+Verbosity level can be increased via `-v, -vv, or -vvv` option
+Collected 1 tests
+
+Processing test_control in native environment
+--------------------------------------------------------------------------------
+Building...
+Testing...
+test\test_control\test_main.cpp:296: test_official_pin_map_and_uniqueness	[PASSED]
+test\test_control\test_main.cpp:297: test_pwm_timer_partition	[PASSED]
+test\test_control\test_main.cpp:298: test_unknown_distance_is_not_fake_zero	[PASSED]
+test\test_control\test_main.cpp:299: test_encoder_distance_formula	[PASSED]
+test\test_control\test_main.cpp:300: test_battery_unknown_and_formula	[PASSED]
+test\test_control\test_main.cpp:301: test_line_polarity_and_actions	[PASSED]
+test\test_control\test_main.cpp:302: test_task_rejects_bad_node_or_destination	[PASSED]
+test\test_control\test_main.cpp:303: test_task_rejects_duplicate_missing_pickup_empty	[PASSED]
+test\test_control\test_main.cpp:304: test_start_requires_task_and_confirmed_node	[PASSED]
+test\test_control\test_main.cpp:305: test_start_rejects_configuration_and_busy_servo	[PASSED]
+test\test_control\test_main.cpp:306: test_full_pickup_and_delivery_cycle	[PASSED]
+test\test_control\test_main.cpp:307: test_same_node_does_not_advance_path	[PASSED]
+test\test_control\test_main.cpp:308: test_unexpected_node_latches_stop	[PASSED]
+test\test_control\test_main.cpp:309: test_unknown_tag_latches_stop	[PASSED]
+test\test_control\test_main.cpp:310: test_node_change_during_loading_stops	[PASSED]
+test\test_control\test_main.cpp:311: test_wifi_grace_pauses_then_timeout_latches	[PASSED]
+test\test_control\test_main.cpp:312: test_mqtt_timeout_latches	[PASSED]
+test\test_control\test_main.cpp:313: test_reconnection_does_not_auto_move_during_grace	[PASSED]
+test\test_control\test_main.cpp:314: test_zero_timeout_safe_stop_in_idle	[PASSED]
+test\test_control\test_main.cpp:315: test_timeout_across_millis_wrap	[PASSED]
+test\test_control\test_main.cpp:316: test_emergency_stop_requires_restart_then_start	[PASSED]
+test\test_control\test_main.cpp:317: test_restart_rejects_obstacle_lost_line_and_network	[PASSED]
+test\test_control\test_main.cpp:318: test_obstacle_stops_without_servo	[PASSED]
+test\test_control\test_main.cpp:319: test_invalid_ultrasonic_stops	[PASSED]
+test\test_control\test_main.cpp:320: test_lost_and_ambiguous_line_stop	[PASSED]
+test\test_control\test_main.cpp:321: test_turn_requires_calibration	[PASSED]
+test\test_control\test_main.cpp:322: test_turn_completes_only_after_minimum_and_center	[PASSED]
+test\test_control\test_main.cpp:323: test_turn_timeout_stops	[PASSED]
+test\test_control\test_main.cpp:324: test_interrupted_turn_requires_cancel	[PASSED]
+test\test_control\test_main.cpp:325: test_straight_crossing_never_ignores_lost_line	[PASSED]
+test\test_control\test_main.cpp:326: test_stop_and_cancel_do_not_clear_latch	[PASSED]
+test\test_control\test_main.cpp:327: test_active_task_cannot_be_overwritten	[PASSED]
+test\test_control\test_main.cpp:328: test_parser_accepts_task_and_departures	[PASSED]
+test\test_control\test_main.cpp:329: test_parser_accepts_all_simple_commands	[PASSED]
+test\test_control\test_main.cpp:330: test_parser_rejects_bad_json_version_types_unknown	[PASSED]
+test\test_control\test_main.cpp:331: test_parser_rejects_zero_session_for_motion_but_allows_stop	[PASSED]
+test\test_control\test_main.cpp:332: test_parser_rejects_bad_task_and_oversized_payload	[PASSED]
+test\test_control\test_main.cpp:333: test_parser_rejects_long_identifier_and_path	[PASSED]
+test\test_control\test_main.cpp:334: test_parser_rejects_trailing_data_and_nul	[PASSED]
+test\test_control\test_main.cpp:335: test_sensor_failure_during_loading_suppresses_servo	[PASSED]
+test\test_control\test_main.cpp:336: test_error_state_stays_stopped_until_explicit_restart	[PASSED]
+test\test_control\test_main.cpp:337: test_single_node_pickup_and_drop_cycle	[PASSED]
+---------------- native:test_control [PASSED] Took 1.53 seconds ----------------
+
+=================================== SUMMARY ===================================
+Environment    Test          Status    Duration
+-------------  ------------  --------  ------------
+native         test_control  PASSED    00:00:01.533
+================= 42 test cases: 42 succeeded in 00:00:01.533 =================

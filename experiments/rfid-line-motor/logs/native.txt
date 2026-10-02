@@ -1,0 +1,27 @@
+Verbosity level can be increased via `-v, -vv, or -vvv` option
+Collected 1 tests
+
+Processing test_logic in native environment
+--------------------------------------------------------------------------------
+Building...
+Library Manager: Installing throwtheswitch/Unity @ ^2.6.1
+Unpacking 0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
+Library Manager: Unity@2.6.1 has been installed!
+Testing...
+test\test_logic\test_main.cpp:91: test_boot_stop	[PASSED]
+test\test_logic\test_main.cpp:92: test_follow_patterns	[PASSED]
+test\test_logic\test_main.cpp:93: test_pivot_requires_new_left_edge	[PASSED]
+test\test_logic\test_main.cpp:94: test_minimum_turn_and_noise	[PASSED]
+test\test_logic\test_main.cpp:95: test_absence_must_be_stable	[PASSED]
+test\test_logic\test_main.cpp:96: test_timeout_latches_stop	[PASSED]
+test\test_logic\test_main.cpp:97: test_stop_during_turn_and_rearm	[PASSED]
+test\test_logic\test_main.cpp:98: test_line_fault_does_not_auto_resume	[PASSED]
+test\test_logic\test_main.cpp:99: test_millis_wrap	[PASSED]
+test\test_logic\test_main.cpp:100: test_left_pivot_option	[PASSED]
+----------------- native:test_logic [PASSED] Took 3.22 seconds -----------------
+
+=================================== SUMMARY ===================================
+Environment    Test        Status    Duration
+-------------  ----------  --------  ------------
+native         test_logic  PASSED    00:00:03.224
+================= 10 test cases: 10 succeeded in 00:00:03.224 =================

@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../../testdoline/testcodedoline"
+		},
+		{
+			"name": "rfid-line-motor",
+			"path": "rfid-line-motor"
+		}
+	],
+	"settings": {}
+}
